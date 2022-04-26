@@ -1,11 +1,12 @@
 import os
 
-annoation = input(f'annotation path (e.g. outcrop, seismic): ')
+annotation = input(f'annotation path (e.g. outcrop, seismic): ')
 
 data_path = 'data/annotation/'
-data_annotated = data_path + f'{annoation}/json/'
-save_labelme_directory = data_path + f'{annoation}/outcrop_visualized/'
-save_viz_img = data_path + f'{annoation}/viz_img/'
+# data_annotated = data_path + f'{annotation}/json/'
+data_annotated = data_path + f'{annotation}/json_replaced/'
+save_labelme_directory = data_path + f'{annotation}/{annotation}_visualized/'
+save_viz_img = data_path + f'{annotation}/viz_img/'
 
 # TODO mkdir 
 if not os.path.exists(save_labelme_directory):
@@ -31,3 +32,4 @@ print(ls_data_path)
 
 # f = '001_fault_data.json'
 # print(f[:-5])
+

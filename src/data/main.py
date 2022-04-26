@@ -14,9 +14,10 @@ import os
 step 1: 
 '''
 cmap_seis = 'gray_r' 
-packed_images = glob.glob('data/raw/outcrop/*', recursive=True)
+# packed_images = glob.glob('data/raw/visible_geo/*', recursive=True)
+packed_images = glob.glob('data/raw/resized/*', recursive=True)
 # packed_images = [images for images in os.listdir('data/raw/outcrop/') if images.endswith('.png')]
-save_folder = f'data/raw/seismic/test_n/'
+save_folder = f'data/raw/seismic/resized/'
 print(packed_images)
 cmap_pack = ['PiYG', 'PRGn', 'BrBG', 'PuOr', 'RdGy', 'RdBu', 'RdYlBu','RdYlGn', 'Spectral', 'coolwarm', 'bwr', 'seismic']
 
@@ -34,8 +35,9 @@ for i in packed_images:
 		seismic = C.reflectivity(smooth, 30)
 		max_num, min_num = C.clip(seismic, 99)
 		filename, file_extension = os.path.splitext(i)
-		file_name = os.path.basename(filename) + file_extension
-		save_image = os.path.join(save_folder, file_name)
+		# file_name = os.path.basename(filename).replace('fault', 'seismic') + file_extension
+		file_name = os.path.basename(filename).replace('fault', 'seismic') + file_extension
+		save_image = os.path.join(save_folder, file_name.replace('JPG', 'png'))
 		# for idx, cmap in enumerate(cmap_pack):
 		# 	plt.imsave(fname=f'{save_image[:-4]}_{cmap}.png', arr=seismic, cmap=cmap, format='png', vmin=min_num, vmax=max_num)
 		plt.imsave(fname=save_image, arr=seismic, cmap=cmap_seis, format='png', vmin=min_num, vmax=max_num)

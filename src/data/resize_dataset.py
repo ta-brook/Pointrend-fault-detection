@@ -11,7 +11,6 @@ def json_annotation_converter(json_path, converted_json_path, image_folder_path,
     image_save_path = image_save_path
     images = glob(image_folder_path+"\\*.jpeg")
     H,W = size
-    red = [0,255,0]
 
     json_path = json_path
 
@@ -33,10 +32,10 @@ def json_annotation_converter(json_path, converted_json_path, image_folder_path,
         file_name = data["filename"]
         image = cv2.imread(image_folder_path + file_name)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        for obj in range(len(data["regions"])):
+        for obj in range(len(data["shapes"])):
             print(obj)
-            x = data["regions"][obj]["shape_attributes"]["all_points_x"]
-            y = data["regions"][obj]["shape_attributes"]["all_points_y"]
+            x = [x_point[0] for x_point in data["shapes"][obj]["points"]]
+            y = [y_point[1] for y_point in data["shapes"][obj]["points"]]
 
             for i in range(len(x)):
                 list_xy.append((x[i],y[i]))
@@ -48,8 +47,8 @@ def json_annotation_converter(json_path, converted_json_path, image_folder_path,
         cv2.imwrite(image_save_path+file_name,trans_image)
         
         s = 0
-        for obj in range(len(new_json[key_jsondata]["regions"])):
-            e = len(new_json[key_jsondata]["regions"][obj]["shape_attributes"]["all_points_x"]) + s
+        for obj in range(len(new_json[key_jsondata]["shapes"])):
+            e = len(new_json[key_jsondata]["shapes"][obj]["points"]) + s
             new_xy = transformed["keypoints"][s:e]
             print("kp to json", new_xy)
             x = []
@@ -57,9 +56,11 @@ def json_annotation_converter(json_path, converted_json_path, image_folder_path,
             for idx in range(len(new_xy)):
                 x.append(int(new_xy[idx][0]))
                 y.append(int(new_xy[idx][1]))
-        
-            new_json[key_jsondata]["regions"][obj]["shape_attributes"]["all_points_x"] = x
-            new_json[key_jsondata]["regions"][obj]["shape_attributes"]["all_points_y"] = y
+            
+            print(f'old coor: {new_json[key_jsondata]["shapes"][obj]["points"]} \nnew coor: {[x, y]}')
+            new_json[key_jsondata]["shapes"][obj]["points"] = [x, y]
+            # new_json[key_jsondata]["shapes"][obj]["points"]["all_points_x"] = x
+            # new_json[key_jsondata]["shapes"][obj]["points"]["all_points_y"] = y
             s = e
             
         with open(converted_json_path, 'w') as fp:
@@ -74,3 +75,4 @@ image_save_path = "D:\\git_rep\\conv\\"
 size = (512,512)
                 
 json_annotation_converter(json_path,converted_json_path,image_folder_path, image_save_path, size = size)
+

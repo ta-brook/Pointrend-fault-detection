@@ -39,7 +39,7 @@ def indexing_name(image_path, save_path, outcrop_data_path):
             print(f'save {data} image as {new_name}')
 
         if 'fault_data' in data:
-            old_img_dict[data] = new_name
+            old_img_dict[data[:-4]] = new_name[:-4]
             print(f'found old format name :{data} renamed to {new_name}')
             count_old += 1
         
@@ -54,25 +54,32 @@ def indexing_name(image_path, save_path, outcrop_data_path):
 
     return old_img_dict
 
-def rename_old_to_new(path, save_path, old_dict):
+def rename_old_to_new(path, json_path, save_path, old_dict):
+    print(path)
     for data in path:
         print(data)
-        if data in old_dict.keys(): # hash table here 
-            new_name = old_dict[data]            
-            with open(path + data) as i:
+        if data[:-5] in old_dict.keys(): # hash table here 
+            new_name = old_dict[data[:-5]] +'.json'
+            print(f'open {json_path + data}')
+
+            with open(json_path + data) as i:
                 annotation = json.loads(i.read())
 
-                annotation['imagePath'] = new_name
+            # print(f'delete {json_path + data}')
+            # os.remove(json_path + data)
+            annotation['imagePath'] = new_name
+            print(f'{data} renamed to {new_name} and annotated as {annotation["imagePath"]}')
+            print(f'save {save_path + new_name}')
 
-                print(f'{data} renamed to {new_name}')
-                print(annotation['imagePath'])
+            with open(save_path + new_name, 'w', encoding='utf-8') as f:
+                json.dump(annotation, f, ensure_ascii=False, indent=4)
+        else:
+            print(f'this one is not duplicate {data}')
+
+        print(f'---------------')
 
 
-                with open(save_path + new_name, 'w', encoding='utf-8') as f:
-                    json.dump(annotation, f, ensure_ascii=False, indent=4)
-
-
-def rename_fault_to_seismic(path):
+def rename_fault_to_seismic(path, save_path):
     for data in path:
          with open(path + data) as i:
             annotation = json.loads(i.read())
@@ -93,8 +100,11 @@ image_save_path = 'data/raw/test/'
 
 # json
 seismic_path = 'data/annotation/seismic/json/'
+save_path_seis = 'data/annotation/seismic/json/'
 outcrop_path = 'data/annotation/outcrop/json/'
-save_path = 'data/annotation/seismic/json/'
+save_path_outcrop = 'data/annotation/outcrop/json_new/'
+
+
 
 outcrop_image_path = [file for file in os.listdir(image_path) if file.endswith(('.png', '.jpg'))]
 seismic_data_path = [file for file in os.listdir(seismic_path) if file.endswith('.json')]
@@ -103,6 +113,6 @@ outcrop_data_path = [file for file in os.listdir(outcrop_path) if file.endswith(
 if __name__ == '__main__':
     print('start...')
     old_dict = indexing_name(image_path, image_save_path, outcrop_image_path)
-    # print('finish first function')
-    # rename_old_to_new(outcrop_data_path, save_path, old_dict)
-    # print('done...')
+    print('finish first function')
+    rename_old_to_new(outcrop_data_path, outcrop_path, save_path_outcrop, old_dict)
+    print('done...')
